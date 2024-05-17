@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   ## events used later for logic that selets to deploy to QA, Prod targets
   release:
-    types: [published]
+    types: [prereleased, released]
   ## events used later for logic that selets to deploy to PoC, Dev destinations
   push:
     branches-ignore:
