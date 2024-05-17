@@ -49,8 +49,8 @@ jobs:
            ## Get the Current Configurations Files from Azure
            #New-Item -Type Directory -Name "Temp"
            #$outputFolder = (Join-Path -Path ${env:GITHUB_WORKSPACE} -Childpath "Temp")
-           #Get-azautomationdscconfiguration -ResourceGroupName '${{ env.RESOURCE_GROUP_NAME }}' -AutomationAccountName '${{ env.AUTOMATION_ACCOUNT_NAME }}'  | Foreach-Object{
-            #Export-AzAutomationDscConfiguration -ResourceGroupName '${{ env.RESOURCE_GROUP_NAME }}' -AutomationAccountName '${{ env.AUTOMATION_ACCOUNT_NAME }}'  -Name $_.Name -OutputFolder $outputFolder }}
+           #Get-azautomationdscconfiguration -ResourceGroupName '${{ vars.RESOURCE_GROUP_NAME }}' -AutomationAccountName '${{ vars.AUTOMATION_ACCOUNT_NAME }}'  | Foreach-Object{
+            #Export-AzAutomationDscConfiguration -ResourceGroupName '${{ vars.RESOURCE_GROUP_NAME }}' -AutomationAccountName '${{ vars.AUTOMATION_ACCOUNT_NAME }}'  -Name $_.Name -OutputFolder $outputFolder }}
           
            # Manually upload and compile the code for testing/showing it off
            $updatedFile = "DSC/MVPre.ps1"
@@ -58,5 +58,7 @@ jobs:
            $UpdatedConfigName = ($updatedFile.Split("/")[-1].replace(".ps1",""))
            $updatedFilePath
            $UpdatedConfigName
+           Get-AzAutomationAccount | select -expand AutomationAccountName
+           
            Import-AzAutomationDscConfiguration -AutomationAccountName '${{ vars.AUTOMATION_ACCOUNT_NAME }}' -Published -ResourceGroupName '${{ vars.RESOURCE_GROUP_NAME }}' -SourcePath $updatedFilePath -Force
            Start-AzAutomationDscCompilationJob -ConfigurationName $UpdatedConfigName -ResourceGroupName '${{ vars.RESOURCE_GROUP_NAME }}' -AutomationAccountName '${{ vars.AUTOMATION_ACCOUNT_NAME }}'
