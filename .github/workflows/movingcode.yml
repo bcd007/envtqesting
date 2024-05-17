@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   ## events used later for logic that selets to deploy to QA, Prod targets
   release:
-    types: [published, unpublished]
+    types: [published]
   ## events used later for logic that selets to deploy to PoC, Dev destinations
   push:
     branches-ignore:
@@ -22,7 +22,7 @@ jobs:
     name: Checkout the Repo
     ## dynamically determine which GitHub Deployment Environment to use for this entire job
     environment:
-      name: ${{ github.event_name == 'release' && ( github.release_type == 'released' && 'Prod' || 'QA' ) || (github.ref == 'refs/heads/main' && 'Dev' || 'poc') }}
+      name: ${{ github.event_name == 'release' && ( github.release.draft == true && 'QA' || 'Prod' ) || (github.ref_name == 'main' && 'Dev' || 'poc') }}
 
     runs-on: ubuntu-latest
 
@@ -32,7 +32,7 @@ jobs:
 
       - name: do the do!
         run: |
-          # & (Join-Path -Path ${env:GITHUB_WORKSPACE} -ChildPath Update-MyCoolThings.ps1)
+          Write-Verbose '${{ toJson(github) }}' -verbose
 
       - name: Connect to Azure for the AZ subscription specified by secrets/vars for _this_ GitHub Deployment Environment
         uses: azure/login@v2
