@@ -1,4 +1,4 @@
-name: azureautomationdeployments
+name: Azure Automation Upload and Compile
 on:
   workflow_dispatch:
   ## events used later for logic that selets to deploy to QA, Prod targets
@@ -15,7 +15,7 @@ defaults:
 
 jobs:
   DoTheDo:
-    name: Checkout, then do something useful
+    name: Checkout the Repo
     ## dynamically determine which GitHub Deployment Environment to use for this entire job
     environment:
       name: ${{ github.event_name == 'release' && ( github.release_type == 'released' && 'prod' || 'qa' ) || (github.ref == 'main' && 'dev' || 'poc') }}
@@ -28,7 +28,7 @@ jobs:
 
       - name: do the do!
         run: |
-          & (Join-Path -Path ${env:GITHUB_WORKSPACE} -ChildPath Update-MyCoolThings.ps1)
+          # & (Join-Path -Path ${env:GITHUB_WORKSPACE} -ChildPath Update-MyCoolThings.ps1)
 
       - name: Connect to Azure for the AZ subscription specified by secrets/vars for _this_ GitHub Deployment Environment
         uses: azure/login@v2
@@ -37,16 +37,17 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: do the idempotent do!
+      - name: Upload and Compile Changed DSC Code
         run: |
           ## Get the Current Configurations Files from Azure
-          New-Item -Type Directory -Name "Temp"
-          $outputFolder = (Join-Path -Path ${env:GITHUB_WORKSPACE} -Childpath "Temp")
-          Get-azautomationdscconfiguration -ResourceGroupName '${{ env.RESOURCE_GROUP_NAME }}' -AutomationAccountName '${{ env.AUTOMATION_ACCOUNT_NAME }}'  | Foreach-Object{
-           Export-AzAutomationDscConfiguration -ResourceGroupName '${{ env.RESOURCE_GROUP_NAME }}' -AutomationAccountName '${{ env.AUTOMATION_ACCOUNT_NAME }}'  -Name $_.Name -OutputFolder $outputFolder }
-
-          Get-ChildItem -File -Path (Join-Path -Path $outputFolder -ChildPath ".ps1") | Foreach-Object {
-            ## do the idempotent thing
-            
-            if ((($_.FullName, (Get-AzCompiledThingy -Name $someThingy) | Get-FileHash | Group-Object -Property Filehash | Measure-Object).Count -gt 1))) {Start-AzCompileThingy -SourcePath $_.Fullname -Target}
-          }
+          #New-Item -Type Directory -Name "Temp"
+          #$outputFolder = (Join-Path -Path ${env:GITHUB_WORKSPACE} -Childpath "Temp")
+          #Get-azautomationdscconfiguration -ResourceGroupName '${{ env.RESOURCE_GROUP_NAME }}' -AutomationAccountName '${{ env.AUTOMATION_ACCOUNT_NAME }}'  | Foreach-Object{
+           #Export-AzAutomationDscConfiguration -ResourceGroupName '${{ env.RESOURCE_GROUP_NAME }}' -AutomationAccountName '${{ env.AUTOMATION_ACCOUNT_NAME }}'  -Name $_.Name -OutputFolder $outputFolder }}
+          
+           # Manually upload and compile the code for testing/showing it off
+          $updatedFile = "DSC/MVPre.ps1"
+          $updatedFilePath = (Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath $updatedFile)
+          $UpdatedConfigName = ($updatedFile.Split("/")[-1].replace(".ps1",""))
+          Import-AzAutomationDscConfiguration -AutomationAccountName '${{ vars.AUTOMATION_ACCOUNT_NAME }}' -Published -ResourceGroupName '${{ vars.RESOURCE_GROUP_NAME }}' -SourcePath $updatedFilePath -Force
+          Start-AzAutomationDscCompilationJob -ConfigurationName $UpdatedConfigName -ResourceGroupName '${{ vars.RESOURCE_GROUP_NAME }}' -AutomationAccountName '${{ vars.AUTOMATION_ACCOUNT_NAME }}'
