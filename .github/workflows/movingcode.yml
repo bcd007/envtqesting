@@ -22,7 +22,7 @@ jobs:
     name: Checkout the Repo
     ## dynamically determine which GitHub Deployment Environment to use for this entire job
     environment:
-      name: ${{ github.event_name == 'release' && ( github.release_type == 'released' && 'Prod' || 'QA' ) || (github.ref == 'main' && 'Dev' || 'poc') }}
+      name: ${{ github.event_name == 'release' && ( github.release_type == 'released' && 'Prod' || 'QA' ) || (github.ref == 'refs/heads/main' && 'Dev' || 'poc') }}
 
     runs-on: ubuntu-latest
 
