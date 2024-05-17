@@ -9,6 +9,10 @@ on:
     branches-ignore:
       - 'NoTrigger**'
 
+permissions:
+  id-token: write
+  contents: write
+  
 defaults:
   run:
     shell: pwsh
@@ -18,7 +22,7 @@ jobs:
     name: Checkout the Repo
     ## dynamically determine which GitHub Deployment Environment to use for this entire job
     environment:
-      name: ${{ github.event_name == 'release' && ( github.release_type == 'released' && 'prod' || 'qa' ) || (github.ref == 'main' && 'dev' || 'poc') }}
+      name: ${{ github.event_name == 'release' && ( github.release_type == 'released' && 'Prod' || 'QA' ) || (github.ref == 'main' && 'Dev' || 'poc') }}
 
     runs-on: ubuntu-latest
 
