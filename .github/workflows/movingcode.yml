@@ -56,5 +56,7 @@ jobs:
            $updatedFile = "DSC/MVPre.ps1"
            $updatedFilePath = (Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath $updatedFile)
            $UpdatedConfigName = ($updatedFile.Split("/")[-1].replace(".ps1",""))
+           $updatedFilePath
+           $UpdatedConfigName
            Import-AzAutomationDscConfiguration -AutomationAccountName '${{ vars.AUTOMATION_ACCOUNT_NAME }}' -Published -ResourceGroupName '${{ vars.RESOURCE_GROUP_NAME }}' -SourcePath $updatedFilePath -Force
            Start-AzAutomationDscCompilationJob -ConfigurationName $UpdatedConfigName -ResourceGroupName '${{ vars.RESOURCE_GROUP_NAME }}' -AutomationAccountName '${{ vars.AUTOMATION_ACCOUNT_NAME }}'
