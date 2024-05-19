@@ -30,9 +30,9 @@ jobs:
       - name: Check it out!
         uses: actions/checkout@v4
 
-      - name: do the do!
-        run: |
-          #Write-Verbose '${{ toJson(github) }}' -verbose
+      ## - name: do the do!
+        ## run: |
+          ## Write-Verbose '${{ toJson(github) }}' -verbose
 
       - name: Connect to Azure for the AZ subscription specified by secrets/vars for _this_ GitHub Deployment Environment
         uses: azure/login@v2
