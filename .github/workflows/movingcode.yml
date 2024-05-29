@@ -8,6 +8,10 @@ on:
   push:
     branches-ignore:
       - 'NoTrigger**'
+    paths:
+     - 'DSC/MVPreRing0.ps1'
+     - 'DSC/MVPreRing1.ps1'
+     - 'DSC/MVPre.ps1'
 
 permissions:
   id-token: write
