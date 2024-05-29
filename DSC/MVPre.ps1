@@ -2,7 +2,7 @@ Configuration MVPre {
 
     Import-DSCResource -ModuleName 'PSDscResources'
 
-    # Version 2.1.47
+    # Version 2.1.48
     Script OS.Verify_SMB1ProtocolDisabled
     {
       # What: Disable (and remove) SMB1 protocol
