@@ -52,7 +52,7 @@ jobs:
           azPSVersion: "latest"
           inlineScript: |
            #Export out all MVP* DSC Configurations and renamed them to remove the leading \ character that stupid Microsoft adds
-           New-Item -Type Directory -Name "temp" -Path env:GITHUB_WORKSPACE
+           New-Item -Type Directory -Name "temp" -Path $env:GITHUB_WORKSPACE
            $tempDSCFilePath = Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath ("temp" + [IO.Path]::DirectorySeparatorChar)
            $repoDSCFileLocaion = Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath ("DSC" + [IO.Path]::DirectorySeparatorChar + "MVP*.ps1")
 
