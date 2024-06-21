@@ -60,7 +60,7 @@ jobs:
            $deployedFiles = Get-ChildItem -path $tempDSCFilePath | select-object -Property Name,FullName,DirectoryName,@{n="FileHash";e={Get-Filehash $_ | Select-Object -expand Hash}}
            $repobasedFiles = Get-ChildItem -path $repoDSCFileLocation | select-object -Property Name,FullName,DirectoryName,@{n="FileHash";e={Get-Filehash $_ | Select-Object -expand Hash}}
 
-           Compare-Object -ReferenceObject $DeployedFiles -DifferenceObject $repobasedFiles -Property FileHash,Name | Where-Object{$_.SideIndicator -eq "<="} | ForEach-Object{
+           Compare-Object -ReferenceObject $repobasedFiles -DifferenceObject $DeployedFiles -Property FileHash,Name | Where-Object{$_.SideIndicator -eq "<="} | ForEach-Object{
             $updatedFile = Join-Path -Path "DSC" -ChildPath $_.Name
             $updatedFilePath = (Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath $updatedFile)
             $UpdatedConfigName = ($updatedFile.Split("/")[-1].replace(".ps1",""))
