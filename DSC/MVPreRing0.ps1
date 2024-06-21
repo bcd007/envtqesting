@@ -1,7 +1,7 @@
 Configuration MVPreRing0 {
 
     Import-DSCResource -ModuleName 'PSDscResources'
-    # Version 2.1.60
+    # Version 2.1.50
 
     Script OS.Verify_SMB1ProtocolDisabled
     {
