@@ -49,21 +49,25 @@ jobs:
           azPSVersion: "latest"
           inlineScript: |
            #Export out all MVP* DSC Configurations and rename them to remove the leading \ character that stupid Microsoft adds
+           $dirSeparator = [IO.Path]::DirectorySeparatorChar
            New-Item -Type Directory -Name "temp" -Path $env:GITHUB_WORKSPACE
-           $tempDSCFilePath = Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath ("temp" + [IO.Path]::DirectorySeparatorChar)
-           $repoDSCFileLocation = Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath ("DSC" + [IO.Path]::DirectorySeparatorChar + "MVP*.ps1")
+           $tempDSCFilePath = Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath ("temp" + $dirSeparator)
+           $repoDSCFileLocation = Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath ("DSC" + $dirSeparator + "MVP*.ps1")
 
            get-azautomationdscconfiguration -ResourceGroupName '${{ vars.RESOURCE_GROUP_NAME }}'  -AutomationAccountName '${{ vars.AUTOMATION_ACCOUNT_NAME }}' | Where-Object{$_.name -like "MVP*"} | ForEach-Object{export-AzAutomationDscConfiguration -ResourceGroupName '${{ vars.RESOURCE_GROUP_NAME }}'  -AutomationAccountName '${{ vars.AUTOMATION_ACCOUNT_NAME }}' -Name $_.Name -OutputFolder $tempDSCFilePath -Force}
 
            Get-ChildItem -path $tempDSCFilePath -File | Select-Object -expand FullName | ForEach-Object{mv $_ ($_.Replace("\",""))}
 
-           $deployedFiles = Get-ChildItem -path $tempDSCFilePath | select-object -Property Name,FullName,DirectoryName,@{n="FileHash";e={Get-Filehash $_ | Select-Object -expand Hash}}
-           $repobasedFiles = Get-ChildItem -path $repoDSCFileLocation | select-object -Property Name,FullName,DirectoryName,@{n="FileHash";e={Get-Filehash $_ | Select-Object -expand Hash}}
+           $deployedFiles = Get-ChildItem -path $tempDSCFilePath -File | select-object -Property Name,FullName,DirectoryName,@{n="FileHash";e={Get-Filehash $_ | Select-Object -expand Hash}}
+           $repobasedFiles = Get-ChildItem -path $repoDSCFileLocation -File | select-object -Property Name,FullName,DirectoryName,@{n="FileHash";e={Get-Filehash $_ | Select-Object -expand Hash}}
+           $compareResults = (Compare-Object -ReferenceObject $repobasedFiles -DifferenceObject $DeployedFiles -Property FileHash,Name | Where-Object{$_.SideIndicator -eq "<="})
+           If($compareResults.Name -eq "MVPre.ps1"){$compareResults = ($compareResults | Where-Object{$_.Name -eq "MVPre.ps1"})}
+           If($compareResults.Name -eq "MVPreRing0.ps1" -AND $compareResults.Name -eq "MVPreRing1.ps1"){$compareResults = ($compareResults | Where-Object{$_.Name -eq "MVPreRing0.ps1"})}
 
-           Compare-Object -ReferenceObject $repobasedFiles -DifferenceObject $DeployedFiles -Property FileHash,Name | Where-Object{$_.SideIndicator -eq "<="} | ForEach-Object{
+           $compareResults | ForEach-Object{
             $updatedFile = Join-Path -Path "DSC" -ChildPath $_.Name
             $updatedFilePath = (Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath $updatedFile)
-            $UpdatedConfigName = ($updatedFile.Split("/")[-1].replace(".ps1",""))
+            $UpdatedConfigName = ($updatedFile.Split($dirSeparator)[-1].replace(".ps1",""))
             Import-AzAutomationDscConfiguration -AutomationAccountName '${{ vars.AUTOMATION_ACCOUNT_NAME }}' -Published -ResourceGroupName '${{ vars.RESOURCE_GROUP_NAME }}' -SourcePath $updatedFilePath -Force
             Start-AzAutomationDscCompilationJob -ConfigurationName $UpdatedConfigName -ResourceGroupName '${{ vars.RESOURCE_GROUP_NAME }}' -AutomationAccountName '${{ vars.AUTOMATION_ACCOUNT_NAME }}'
            }
