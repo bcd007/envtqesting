@@ -8,6 +8,9 @@ on:
   push:
     branches-ignore:
       - 'NoTrigger**'
+    ##paths:
+      ##- 'dcMonitor/*.ps1'
+      ##- 'dcManufacturing/*.ps1'
 
 permissions:
   id-token: write
@@ -21,6 +24,7 @@ jobs:
   DoTheDo:
     name: Checkout the Repo
     environment:
+      ## name: ${{ github.event_name == 'release' && ( github.event.release.prerelease == true && 'QA' || 'Prod' ) || (github.ref_name == 'main' && 'Dev' || 'poc') }}
       name: 'poc'
 
     runs-on: ubuntu-latest
@@ -42,8 +46,15 @@ jobs:
         with:
           azPSVersion: "latest"
           inlineScript: |
+           #Export out all MVP* DSC Configurations and rename them to remove the leading \ character that stupid Microsoft adds
            $dirSeparator = [IO.Path]::DirectorySeparatorChar
+           New-Item -Type Directory -Name "temp" -Path $env:GITHUB_WORKSPACE
+           $tempDSCFilePath = Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath ("temp" + $dirSeparator)
+           $repoDSCFileLocation = Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath ("DSC" + $dirSeparator + "*.ps1")
            $jsonTest = @'
             ${{ vars.AZURE_AUTOMATION_ACCOUNTS }}
            '@ | ConvertFrom-Json
            $jsonTest
+           @'
+           ${{ vars.REPO_TRIGGER_FOLDERS }}
+           `@ | ForEach-Object{$_}
