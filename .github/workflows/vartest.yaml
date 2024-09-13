@@ -59,7 +59,7 @@ jobs:
            '@ | ConvertFrom-Json | ForEach-Object {Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath ("$($_.FolderName)" + $dirSeparator + "*.ps1")}
 
            # Download both Standard and Manufacturing Configurations to the a temp folder on the Runner and remove the idiotic \ character that the Azure export cmdlet adds
-           $automationAccounts | ?{$true} -pipelinevariable automationInfo | ForEach-Object {get-azautomationdscconfiguration -ResourceGroupName $_.AutomationAccountResourceGroup  -AutomationAccountName $_.AutomationAccountName | ForEach-Object{export-AzAutomationDscConfiguration -ResourceGroupName $automationInfo.AutomationAccountResourceGroup -AutomationAccountName $automationInfo.AutomationAccountName -Name $_.Name -OutputFolder $tempDSCFilePath -Force}}
+           $automationAccounts | Where-Object{$true} -pipelinevariable automationInfo | ForEach-Object {get-azautomationdscconfiguration -ResourceGroupName $_.AutomationAccountResourceGroup  -AutomationAccountName $_.AutomationAccountName | ForEach-Object{export-AzAutomationDscConfiguration -ResourceGroupName $automationInfo.AutomationAccountResourceGroup -AutomationAccountName $automationInfo.AutomationAccountName -Name $_.Name -OutputFolder $tempDSCFilePath -Force}}
            Get-ChildItem -path $tempDSCFilePath -File | Select-Object -expand FullName | ForEach-Object{mv $_ ($_.Replace("\",""))}
 
            # Get the hash of files in the Repo and in Azure and compare to see if files in the Repo are different
