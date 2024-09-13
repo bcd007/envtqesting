@@ -43,5 +43,5 @@ jobs:
           azPSVersion: "latest"
           inlineScript: |
            $dirSeparator = [IO.Path]::DirectorySeparatorChar
-           $jsonTest = $'{{ vars.AZURE_AUTOMATION_ACCOUNTS }}' | ConvertFrom-Json
+           $jsonTest = ${{ vars.AZURE_AUTOMATION_ACCOUNTS }} | ConvertFrom-Json
            write-host $jsonTest
