@@ -8,9 +8,9 @@ on:
   push:
     branches-ignore:
       - 'NoTrigger**'
-    ##paths:
-      ##- 'dcMonitor/*.ps1'
-      ##- 'dcManufacturing/*.ps1'
+    paths:
+      - 'dcMonitor/*.ps1'
+      - 'dcManufacturing/*.ps1'
 
 permissions:
   id-token: write
@@ -46,7 +46,6 @@ jobs:
         with:
           azPSVersion: "latest"
           inlineScript: |
-           #Export out all MVP* DSC Configurations and rename them to remove the leading \ character that stupid Microsoft adds
            $dirSeparator = [IO.Path]::DirectorySeparatorChar
            New-Item -Type Directory -Name "temp" -Path $env:GITHUB_WORKSPACE
            $tempDSCFilePath = Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath ("temp" + $dirSeparator)
@@ -58,4 +57,12 @@ jobs:
            $repoDSCFileLocation = @'
            ${{ vars.REPO_TRIGGER_FOLDERS }}
            '@ | ConvertFrom-Json | ForEach-Object {Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath ("$($_.FolderName)" + $dirSeparator + "*.ps1")}
-           $repoDSCFileLocation
+
+           # Download both Standard and Manufacturing Configurations to the a temp folder on the Runner and remove the idiotic \ character that the Azure export cmdlet adds
+           $automationAccounts | ?{$true} -pipelinevariable automationInfo | ForEach-Object {get-azautomationdscconfiguration -ResourceGroupName $_.AutomationAccountResourceGroup  -AutomationAccountName $_.AutomationAccountName | ForEach-Object{export-AzAutomationDscConfiguration -ResourceGroupName $automationInfo.AutomationAccountResourceGroup -AutomationAccountName $automationInfo.AutomationAccountName -Name $_.Name -OutputFolder $tempDSCFilePath -Force}}
+           Get-ChildItem -path $tempDSCFilePath -File | Select-Object -expand FullName | ForEach-Object{mv $_ ($_.Replace("\",""))}
+
+           # Get the hash of files in the Repo and in Azure and compare to see if files in the Repo are different
+           $deployedFiles = Get-ChildItem -path $tempDSCFilePath -File | select-object -Property Name,FullName,DirectoryName,@{n="FileHash";e={Get-Filehash $_ | Select-Object -expand Hash}}
+           $repobasedFiles = Get-ChildItem -path $repoDSCFileLocation -File | select-object -Property Name,FullName,DirectoryName,@{n="FileHash";e={Get-Filehash $_ | Select-Object -expand Hash}}
+           $compareResults = (Compare-Object -ReferenceObject $repobasedFiles -DifferenceObject $DeployedFiles -Property FileHash,Name | Where-Object{$_.SideIndicator -eq "<="})
