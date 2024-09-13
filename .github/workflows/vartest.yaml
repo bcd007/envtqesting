@@ -55,7 +55,7 @@ jobs:
             ${{ vars.AZURE_AUTOMATION_ACCOUNTS }}
            '@ | ConvertFrom-Json
            
-           @'
+           $repoDSCFileLocation = @'
            ${{ vars.REPO_TRIGGER_FOLDERS }}
-           '@ | ConvertFrom-Json | $repoDSCFileLocation = Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath ("$_.FolderName" + $dirSeparator + "*.ps1")
+           '@ | ConvertFrom-Json | ForEach-Object {Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath ("$_.FolderName" + $dirSeparator + "*.ps1")}
            $repoDSCFileLocation
