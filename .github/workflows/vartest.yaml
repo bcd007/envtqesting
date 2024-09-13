@@ -1,1 +1,47 @@
+name: Azure Automation Upload and Compile
+on:
+  workflow_dispatch:
+  ## events used later for logic that selets to deploy to QA, Prod targets
+  release:
+    types: [prereleased, released]
+  ## events used later for logic that selets to deploy to PoC, Dev destinations
+  push:
+    branches-ignore:
+      - 'NoTrigger**'
 
+permissions:
+  id-token: write
+  contents: write
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  DoTheDo:
+    name: Checkout the Repo
+    environment:
+      name: 'poc'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check it out!
+        uses: actions/checkout@v4
+
+      - name: Connect to Azure for the AZ subscription specified by secrets/vars for _this_ GitHub Deployment Environment
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - name: Upload and Compile Changed DSC Code
+        uses: azure/powershell@v2
+        with:
+          azPSVersion: "latest"
+          inlineScript: |
+           $dirSeparator = [IO.Path]::DirectorySeparatorChar
+           $jsonTest = $'{{ vars.AZURE_AUTOMATION_ACCOUNTS }}' | ConvertFrom-Json
+           write-host $jsonTest
