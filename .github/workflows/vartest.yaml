@@ -57,4 +57,4 @@ jobs:
            $jsonTest
            @'
            ${{ vars.REPO_TRIGGER_FOLDERS }}
-           `@ | ForEach-Object{$_}
+           '@ | ForEach-Object{$_}
