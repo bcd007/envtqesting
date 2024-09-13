@@ -47,4 +47,4 @@ jobs:
             ${{ vars.AZURE_AUTOMATION_ACCOUNTS }}
            '@
            $jsonTest = ($jsonTest | convertFrom-Json)
-           write-host $jsonTest
+           $jsonTest
