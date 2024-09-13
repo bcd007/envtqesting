@@ -51,10 +51,10 @@ jobs:
            New-Item -Type Directory -Name "temp" -Path $env:GITHUB_WORKSPACE
            $tempDSCFilePath = Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath ("temp" + $dirSeparator)
            $repoDSCFileLocation = Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath ("DSC" + $dirSeparator + "*.ps1")
-           $jsonTest = @'
+           @'
             ${{ vars.AZURE_AUTOMATION_ACCOUNTS }}
            '@ | ConvertFrom-Json
-           $jsonTest
+           
            @'
            ${{ vars.REPO_TRIGGER_FOLDERS }}
-           '@ | ForEach-Object{$_}
+           '@ | ConvertFrom-Json
