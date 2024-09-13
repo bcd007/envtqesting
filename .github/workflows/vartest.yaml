@@ -45,6 +45,5 @@ jobs:
            $dirSeparator = [IO.Path]::DirectorySeparatorChar
            $jsonTest = @'
             ${{ vars.AZURE_AUTOMATION_ACCOUNTS }}
-           '@
-           $jsonTest = ($jsonTest | convertFrom-Json)
+           '@ | ConvertFrom-Json
            $jsonTest
