@@ -1,10 +1,9 @@
 <#
 .SYNOPSIS
-A brief description of the function or script. This keyword can be used only once for each configuration.
+Enforcement code for Manufacturing Computers Only
 
 .DESCRIPTION
-A detailed description of the function or script. This keyword can be used only once for each
-configuration.
+Enforcement code for Manufacturing Computers Only.  Enforces documented settings by using Desired State Configuration
 
 .PARAMETER ComputerName
 The description of a parameter. Add a .PARAMETER keyword for each parameter in the function or
