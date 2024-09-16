@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-A brief description of the function or script. This keyword can be used only once for each configuration.
+Compares DSC Configurations from multiple Azure Automation Accounts to code stored in a gitHub repositiory
 
 .DESCRIPTION
-A detailed description of the function or script. This keyword can be used only once for each
-configuration.
+Compares DSC Configurations from multiple Azure Automation Accounts to code stored in a gitHub repositiory.  If the code is newer in the repo,
+the gitHub action deploys and compiles the new code to a given automation account.
 
 .PARAMETER ComputerName
 The description of a parameter. Add a .PARAMETER keyword for each parameter in the function or
