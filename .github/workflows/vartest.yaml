@@ -66,3 +66,7 @@ jobs:
            $deployedFiles = Get-ChildItem -path $tempDSCFilePath -File | select-object -Property Name,FullName,DirectoryName,@{n="FileHash";e={Get-Filehash $_ | Select-Object -expand Hash}}
            $repobasedFiles = Get-ChildItem -path $repoDSCFileLocation -File | select-object -Property Name,FullName,DirectoryName,@{n="FileHash";e={Get-Filehash $_ | Select-Object -expand Hash}}
            $compareResults = (Compare-Object -ReferenceObject $repobasedFiles -DifferenceObject $DeployedFiles -Property FileHash,Name | Where-Object{$_.SideIndicator -eq "<="})
+           $deployedFiles
+           $repobasedFiles
+           $compareResults
+           
