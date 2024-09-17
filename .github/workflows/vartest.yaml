@@ -66,5 +66,10 @@ jobs:
 
            # Compare the Repo-based files to the AzureAutomation-based files, report only Repo-based files that are different.
            $compareResults = (Compare-Object -ReferenceObject $repobasedFiles -DifferenceObject $DeployedFiles -Property FileHash,Name,AutomationAccountName,ResourceGroup | Where-Object{$_.SideIndicator -eq "<="})
-           $compareResults
            
+           $compareResults | ForEach-Object{
+             $updatedFilePath = (Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath "$($_.BaseName)$dirSeparator$($_.Name)")
+             $UpdatedConfigName = ($_.Name.Split($dirSeparator)[-1].replace(".ps1",""))
+             Import-AzAutomationDscConfiguration -AutomationAccountName $_.AutomationAccountName -Published -ResourceGroupName $_.ResourceGroup -SourcePath $updatedFilePath -Force
+             Start-AzAutomationDscCompilationJob -ConfigurationName $UpdatedConfigName -ResourceGroupName $_.ResourceGroup -AutomationAccountName $_.AutomationAccountName
+           }
