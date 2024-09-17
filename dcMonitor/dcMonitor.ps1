@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Compares DSC Configurations from multiple Azure Automation Accounts to code stored in a gitHub repositiory V4.0
+Compares DSC Configurations from multiple Azure Automation Accounts to code stored in a gitHub repositiory V5.0
 
 .DESCRIPTION
 Compares DSC Configurations from multiple Azure Automation Accounts to code stored in a gitHub repositiory.  If the code is newer in the repo,

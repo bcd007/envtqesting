@@ -65,7 +65,7 @@ jobs:
            $repobasedFiles = Get-ChildItem -path $repoDSCFileLocation -File -PipelineVariable repoFile | select-object -Property Name,FullName,DirectoryName,BaseName,@{n="FileHash";e={Get-Filehash $_ | Select-Object -expand Hash}},@{n="AutomationAccountName";e={($automationAccounts | ?{$_.gitHubRepoFolder -eq ($repoFile.BaseName)}).AutomationAccountName}},@{n="ResourceGroup";e={($automationAccounts | ?{$_.gitHubRepoFolder -eq ($repoFile.BaseName)}).AutomationAccountResourceGroup}} 
 
            # Compare the Repo-based files to the AzureAutomation-based files, report only Repo-based files that are different.
-           $compareResults = (Compare-Object -ReferenceObject $repobasedFiles -DifferenceObject $DeployedFiles -Property FileHash,Name,AutomationAccountName,ResourceGroup | Where-Object{$_.SideIndicator -eq "<="})
+           $compareResults = (Compare-Object -ReferenceObject $repobasedFiles -DifferenceObject $DeployedFiles -Property FileHash,Name,AutomationAccountName,ResourceGroup,BaseName | Where-Object{$_.SideIndicator -eq "<="})
            
            $compareResults | ForEach-Object{
              $updatedFilePath = (Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath "$($_.BaseName)$dirSeparator$($_.Name)")

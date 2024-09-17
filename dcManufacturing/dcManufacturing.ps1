@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Enforcement code for Manufacturing Computers Only - V4.0
+Enforcement code for Manufacturing Computers Only - V5.0
 
 .DESCRIPTION
 Enforcement code for Manufacturing Computers Only.  Enforces documented settings by using Desired State Configuration
