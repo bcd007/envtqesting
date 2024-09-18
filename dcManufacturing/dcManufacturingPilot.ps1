@@ -1,7 +1,7 @@
 
 <#
 .SYNOPSIS
-Enforcement code for Manufacturing Computers Only - Pilot Release
+Enforcement code for Manufacturing Computers Only - Pilot Release - V2.0
 
 .DESCRIPTION
 Enforcement code for Manufacturing Computers Only.  Enforces documented settings by using Desired State Configuration
