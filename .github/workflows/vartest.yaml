@@ -66,8 +66,6 @@ jobs:
 
            # Compare the Repo-based files to the AzureAutomation-based files, report only Repo-based files that are different.
            $compareResults = (Compare-Object -ReferenceObject $repobasedFiles -DifferenceObject $DeployedFiles -Property FileHash -PassThru | Where-Object{$_.SideIndicator -eq "<="})
-           
-           $compareResults
 
            If($null -ne $compareResults){
             $compareResults | ForEach-Object{
