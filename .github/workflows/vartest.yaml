@@ -62,7 +62,7 @@ jobs:
 
            # Get the hash of files in the Repo and in Azure and compare to see if files in the Repo are different
            $deployedFiles = Get-ChildItem -path $tempDSCFilePath -File | select-object -Property Name,FullName,DirectoryName,@{n="FileHash";e={Get-Filehash $_ | Select-Object -expand Hash}}
-           $repobasedFiles = Get-ChildItem -path $repoDSCFileLocation -File -PipelineVariable repoFile | select-object -Property Name,FullName,DirectoryName,BaseName,@{n="FileHash";e={Get-Filehash $_ | Select-Object -expand Hash}},@{n="AutomationAccountName";e={($automationAccounts | ?{$_.gitHubRepoFolder -eq ($repoFile.DirectoryName).Split("/")[-1]}).AutomationAccountName}},@{n="ResourceGroup";e={($automationAccounts | ?{$_.gitHubRepoFolder -eq ($repoFile.DirectoryName).Split("/")[-1]}).AutomationAccountResourceGroup}} 
+           $repobasedFiles = Get-ChildItem -path $repoDSCFileLocation -File -PipelineVariable repoFile | select-object -Property Name,FullName,DirectoryName,BaseName,@{n="FileHash";e={Get-Filehash $_ | Select-Object -expand Hash}},@{n="AutomationAccountName";e={($automationAccounts | ?{$_.gitHubRepoFolder -eq ($repoFile.DirectoryName).Split($dirSeparator)[-1]}).AutomationAccountName}},@{n="ResourceGroup";e={($automationAccounts | ?{$_.gitHubRepoFolder -eq ($repoFile.DirectoryName).Split($dirSeparator)[-1]}).AutomationAccountResourceGroup}} 
 
            # Compare the Repo-based files to the AzureAutomation-based files, report only Repo-based files that are different.
            $compareResults = (Compare-Object -ReferenceObject $repobasedFiles -DifferenceObject $DeployedFiles -Property FileHash -PassThru | Where-Object{$_.SideIndicator -eq "<="})
@@ -71,7 +71,7 @@ jobs:
 
            If($null -ne $compareResults){
             $compareResults | ForEach-Object{
-              $updatedFilePath = (Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath "($($_.DirectoryName).Split("/")[-1])$dirSeparator$($_.Name)")
+              $updatedFilePath = Join-Path -Path $env:GITHUB_WORKSPACE -ChildPath (($_.DirectoryName).Split($dirSeparator)[-1] + $dirSeparator + "$($_.Name)")
               $UpdatedConfigName = ($_.Name.Split($dirSeparator)[-1].replace(".ps1",""))
               Import-AzAutomationDscConfiguration -AutomationAccountName $_.AutomationAccountName -Published -ResourceGroupName $_.ResourceGroup -SourcePath $updatedFilePath -Force
               Start-AzAutomationDscCompilationJob -ConfigurationName $UpdatedConfigName -ResourceGroupName $_.ResourceGroup -AutomationAccountName $_.AutomationAccountName
